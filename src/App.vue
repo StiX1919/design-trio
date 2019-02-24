@@ -1,12 +1,37 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <div class="nav-container"> 
+        <router-link 
+          v-for="route in routes" 
+          :key='route'
+          :to="`/${route === 'Static' ? '' : route.toLowerCase() }`" 
+        >
+          {{route}}
+        </router-link>
+      </div>
     </div>
+
     <router-view/>
+    
   </div>
 </template>
+
+<script>
+
+export default {
+  name: 'scrolling',
+  components: {
+  },
+
+  data(){
+    return {
+      routes: ['Static', 'Complex', 'Dynamic']
+    }
+  }
+}
+
+</script>
 
 <style>
 #app {
@@ -17,7 +42,17 @@
   color: #2c3e50;
 }
 #nav {
-  padding: 30px;
+  width: 100%;
+  height: 50px;
+  
+  display: flex;
+  justify-content: center;
+}
+.nav-container {
+  width: 50%;
+
+  display: flex;
+  justify-content: space-around
 }
 
 #nav a {
@@ -27,5 +62,21 @@
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+
+h1 {
+  margin: 0
+}
+h2 {
+  margin: 0
+}
+h3 {
+  margin: 0
+}
+h4 {
+  margin: 0
+}
+h5 {
+  margin: 0
 }
 </style>
