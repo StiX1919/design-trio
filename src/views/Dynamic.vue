@@ -33,7 +33,8 @@
 </template>
 
 <script>
-// @ is an alias to /src
+import axios from 'axios'
+
 export default {
   name: 'dynamic',
   data() {
@@ -43,13 +44,25 @@ export default {
       btInput: 0,
       btMore: false,
       cstInput: 0,
-      cstMore: false
+      cstMore: false,
+
+      units: []
     }
   },
   methods: {
     updateButton: function(name){
       this[name] = !this[name]
+    },
+
+    getUnits: function(){
+      axios.get('http://localhost:3001/api/getUnits').then(response => {
+        console.log(response.data.units, 'inside')
+        this.units = response.data.units
+      }).catch(err => console.log(err, 'broke'))
     }
+  },
+  mounted() {
+    this.getUnits()
   }
 }
 </script>
