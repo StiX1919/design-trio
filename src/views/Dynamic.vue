@@ -1,68 +1,91 @@
 <template>
   <div class="home">
     <h1>Dynamic</h1>
-    <div>
-      <div class='filter-inputs'>
-        <div>
-          <h2>Hit Points</h2>
-          <h4>{{hit_points}} than</h4>
-          <input type='number' v-model="hpInput"/>
-          <button @click="updateSort('hit_points', 'less', hpInput)">Less</button>
-          <button @click="updateSort('hit_points', 'more', hpInput)" >More</button>
-        </div>
-        <div>
-          <h2>Build Time</h2>
-          <h4>{{build_time ? 'More' : 'Less'}} than</h4>
-          <input type='number' v-model="btInput"/>
-          <button @click="updateSort('build_time', 'less', btInput)">Less</button>
-          <button @click="updateSort('build_time', 'more', btInput)">More</button>
-        </div>
-        <div>
-          <h2>Cost (gold)</h2>
-          <h4>{{cost ? 'More' : 'Less'}} than</h4>
-          <input type='number' v-model="cstInput"/>
-          <button @click="updateSort('cost', 'less')">Less</button>
-          <button @click="updateSort('cost', 'more')">More</button>
-        </div>
-      </div>
-      <button @click='reset'>Reset</button>
-
-      <div class='sorted-units'>
-        <div class="unit-box" 
-              v-for="(unit, index) in sortedUnits" 
-              :key="index"
-              >
-          <h3 class='unit-name'>{{unit.name}}</h3>
-          <h5>Hit Points: {{unit.hit_points}}</h5>
-          <h5>Build Time: {{unit.build_time}}</h5>
-          <h5>Gold: {{unit.cost.Gold}}</h5>
-        </div>
-      </div>
+    <div class='dynamic-content'>
       <div>
-        <h3>5 Best Units</h3>
-        <div class='checkBoxes'>
-          <h5>Same Units</h5>
-          <input type='checkbox' :checked="anyCheck === false" @click="updateCheck"/>
-          <h5>Any Units (WIP)</h5>
-          <input type='checkbox' :checked="anyCheck === true" @click="updateCheck"/>
+        <div class='filter-inputs'>
+          <div>
+            <h2>Hit Points</h2>
+            <h4>{{hit_points}} than</h4>
+            <input type='number' v-model="hpInput"/>
+            <button @click="updateSort('hit_points', 'less', hpInput)">Less</button>
+            <button @click="updateSort('hit_points', 'more', hpInput)" >More</button>
+          </div>
+          <div>
+            <h2>Build Time</h2>
+            <h4>{{build_time}} than</h4>
+            <input type='number' v-model="btInput"/>
+            <button @click="updateSort('build_time', 'less', btInput)">Less</button>
+            <button @click="updateSort('build_time', 'more', btInput)">More</button>
+          </div>
+          
         </div>
+        <button @click='reset'>Reset</button>
+
+        <div class='sorted-units'>
+          <div class="unit-box" 
+                v-for="(unit, index) in sortedUnits" 
+                :key="index"
+                >
+            <h3 class='unit-name'>{{unit.name}}</h3>
+            <h5>Hit Points: {{unit.hit_points}}</h5>
+            <h5>Build Time: {{unit.build_time}}</h5>
+            <h5 v-if='unit.cost.Gold'>Gold: {{unit.cost.Gold}}</h5>
+            <h5 v-if='unit.cost.Wood'>Wood: {{unit.cost.Wood}}</h5>
+            <h5 v-if='unit.cost.Food'>Food: {{unit.cost.Food}}</h5>
+            <h5 v-if='unit.cost.Stone'>Stone: {{unit.cost.Stone}}</h5>
+          </div>
+        </div>
+        <div>
+          <h3>5 Best Units</h3>
+          <div class='checkBoxes'>
+            <h5>Same Units</h5>
+            <input type='checkbox' :checked="anyCheck === false" @click="updateCheck"/>
+            <h5>Any Units (WIP)</h5>
+            <input type='checkbox' :checked="anyCheck === true" @click="updateCheck"/>
+          </div>
+        </div>
+
+
+        <div class='sorted-units'>
+          <div class="unit-box" 
+                v-for="(unit, index) in bestUnits" 
+                :key="index"
+                >
+            <h3 class='unit-name'>{{unit.name}}</h3>
+            <h5>Hit Points: {{unit.hit_points}}</h5>
+            <h5>Build Time: {{unit.build_time}}</h5>
+            <h5 v-if='unit.cost.Gold'>Gold: {{unit.cost.Gold}}</h5>
+            <h5 v-if='unit.cost.Wood'>Wood: {{unit.cost.Wood}}</h5>
+            <h5 v-if='unit.cost.Food'>Food: {{unit.cost.Food}}</h5>
+            <h5 v-if='unit.cost.Stone'>Stone: {{unit.cost.Stone}}</h5>
+          </div>
+        </div>
+
+
       </div>
 
+      <div class='cost-section'>
+        <h2>Cost </h2>
+        <h4>{{cost}} than</h4>
+        <h4>gold</h4>
+        <input type='number' v-model="goldInput"/>
 
-      <div class='sorted-units'>
-        <div class="unit-box" 
-              v-for="(unit, index) in bestUnits" 
-              :key="index"
-              >
-          <h3 class='unit-name'>{{unit.name}}</h3>
-          <h5>Hit Points: {{unit.hit_points}}</h5>
-          <h5>Build Time: {{unit.build_time}}</h5>
-          <h5>Gold: {{unit.cost.Gold}}</h5>
-        </div>
+        <h4>food</h4>
+        <input type='number' v-model="foodInput"/>
+
+        <h4>wood</h4>
+        <input type='number' v-model="woodInput"/>
+
+        <h4>stone</h4>
+        <input type='number' v-model="stoneInput"/>
+
+
+        <button @click="updateSort('cost', 'less')">Less</button>
+        <button @click="updateSort('cost', 'more')">More</button>
       </div>
-
-
     </div>
+
   </div>
 </template>
 
@@ -78,7 +101,10 @@ export default {
       btInput: 0,
       build_time: 'more',
 
-      cstInput: 0,
+      goldInput: 0,
+      foodInput: 0,
+      woodInput: 0,
+      stoneInput: 0,
       cost: 'more',
 
       anyCheck: true,
@@ -153,7 +179,12 @@ export default {
 
     getUnits: function(){
       axios.get('http://localhost:3001/api/getUnits').then(response => {
-        let sorted = response.data.units.sort((a, b) => a.cost.Gold)
+        let sorted = response.data.units.sort((a, b) => a.cost.Gold).filter(unit => {
+          if(unit.build_time){
+            return true
+          }
+        })
+        
         this.units = sorted
         this.sortedUnits = sorted
       }).catch(err => console.log(err, 'broke'))
@@ -163,13 +194,48 @@ export default {
     }
 
   },
+
+  computed: {
+    finalSorts: function() {
+      return this.units.sort((a, b) => a.cost.Gold - b.cost.Gold)
+        .filter((unit, index) => {
+        //hp Filter
+        if(this.hit_points === 'more'){
+          return unit.hit_points > this.hpInput
+        } else return unit.hit_points < this.hpInput
+      }).filter((unit, index) => {
+        //build filter
+        if(this.build_time === 'more'){
+          return unit.build_time > this.btInput
+        } else return unit.build_time < this.btInput
+      })
+      .filter((unit, index) => {
+        //gold filter
+        if(this.cost === 'more'){
+          if(unit.cost.Gold){
+            return unit.cost.Gold > this.goldInput
+          } else return false
+        } else {
+          if(!unit.cost.Gold){
+              return true
+          }
+          return unit.cost.Gold < this.goldInput
+        }
+    })
+  },
   mounted() {
     this.getUnits()
+  }
   }
 }
 </script>
 
 <style>
+
+  .dynamic-content {
+    display: flex;
+    justify-content: space-around
+  }
 
   .filter-inputs {
     display: flex;
@@ -208,6 +274,10 @@ export default {
 
   .checkBoxes {
     display: flex
+  }
+  
+  .cost-section {
+
   }
 
 </style>
