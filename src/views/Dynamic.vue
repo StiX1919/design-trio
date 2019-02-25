@@ -34,7 +34,7 @@
             <h5 v-if='unit.cost.Wood'>Wood: {{unit.cost.Wood}}</h5>
             <h5 v-if='unit.cost.Food'>Food: {{unit.cost.Food}}</h5>
             <h5 v-if='unit.cost.Stone'>Stone: {{unit.cost.Stone}}</h5>
-            <h5>Built in {{unit.created_in.split('/').pop()}}</h5>
+            <h5>Built in {{unit.created_in}}</h5>
           </div>
         </div>
         <div>
@@ -60,7 +60,7 @@
             <h5 v-if='unit.cost.Wood'>Wood: {{unit.cost.Wood}}</h5>
             <h5 v-if='unit.cost.Food'>Food: {{unit.cost.Food}}</h5>
             <h5 v-if='unit.cost.Stone'>Stone: {{unit.cost.Stone}}</h5>
-            <h5>Built in {{unit.created_in.split('/').pop()}}</h5>
+            <h5>Built in {{unit.created_in}}</h5>
           </div>
         </div>
 
@@ -113,7 +113,8 @@ export default {
 
       units: [],
       sortedUnits: [],
-      bestUnits: []
+      bestUnits: [],
+      hubs: []
     }
   },
   methods: {
@@ -134,12 +135,14 @@ export default {
 
     getUnits: function(){
       axios.get('http://localhost:3001/api/getUnits').then(response => {
+        console.log(response)
         let sorted = response.data.units.sort((a, b) => a.cost.Gold - b.cost.Gold).filter(unit => {
           if(unit.build_time){
             return true
           }
         })
 
+        this.hubs = response.data.hubs
         this.units = sorted
         this.sortedUnits = sorted
       }).catch(err => console.log(err, 'broke'))
@@ -226,7 +229,7 @@ export default {
         if(this.anyCheck === false){
           let finalFive = []
 
-          let filteredUnits = this.sortedUnits
+          let filteredUnits = this.sortedUnits.slice()
             .sort((a, b) => a.build_time - b.build_time)
             .filter((unit, index, arr) => {
               return unit.build_time === arr[0].build_time
@@ -240,7 +243,31 @@ export default {
           return finalFive
           // this.bestUnits = filteredUnits
         } else {
+          let bestOfEach = []
+          let finalFive = []
 
+          for(let i = 0; i < this.hubs.length; i++){
+            let buildAreas = this.sortedUnits.filter(unit => {
+              return unit.created_in === this.hubs[i]
+            }).sort((a, b) => a.build_time - b.build_time)
+            .filter((unit, index, arr) => {
+              return unit.build_time === arr[0].build_time
+            })
+            .sort((a, b) => b.hit_points - a.hit_points)
+
+            if(buildAreas[0] !== undefined){
+              bestOfEach.push(buildAreas[0])
+
+            }
+          }
+          bestOfEach.sort((a, b) => a.build_time - b.build_time)
+          for(let i = 0; i < 5; i++){
+            if(!bestOfEach[i]){
+              finalFive.push(bestOfEach[i - (bestOfEach.length)])
+            } else
+            finalFive.push(bestOfEach[i])
+          }
+          return finalFive
         }
       }
   },
