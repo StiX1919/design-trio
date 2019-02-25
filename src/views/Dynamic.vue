@@ -5,27 +5,27 @@
       <div class='filter-inputs'>
         <div>
           <h2>Hit Points</h2>
-          <h4>{{hpMore ? 'More' : 'Less'}} than</h4>
+          <h4>{{hit_points}} than</h4>
           <input type='number' v-model="hpInput"/>
-          <button :disabled="hpMore === false" @click="updateButton('hpMore')">Less</button>
-          <button :disabled="hpMore === true" @click="updateButton('hpMore')" >More</button>
+          <button @click="updateSort('hit_points', 'less', hpInput)">Less</button>
+          <button @click="updateSort('hit_points', 'more', hpInput)" >More</button>
         </div>
         <div>
           <h2>Build Time</h2>
-          <h4>{{btMore ? 'More' : 'Less'}} than</h4>
+          <h4>{{build_time ? 'More' : 'Less'}} than</h4>
           <input type='number' v-model="btInput"/>
-          <button :disabled="btMore === false" @click="updateButton('btMore')">Less</button>
-          <button :disabled="btMore === true" @click="updateButton('btMore')">More</button>
+          <button @click="updateSort('build_time', 'less', btInput)">Less</button>
+          <button @click="updateSort('build_time', 'more', btInput)">More</button>
         </div>
         <div>
           <h2>Cost (gold)</h2>
-          <h4>{{cstMore ? 'More' : 'Less'}} than</h4>
+          <h4>{{cost ? 'More' : 'Less'}} than</h4>
           <input type='number' v-model="cstInput"/>
-          <button :disabled="cstMore === false" @click="updateButton('cstMore')">Less</button>
-          <button :disabled="cstMore === true" @click="updateButton('cstMore')">More</button>
+          <button @click="updateSort('cost', 'less')">Less</button>
+          <button @click="updateSort('cost', 'more')">More</button>
         </div>
       </div>
-      <button @click='sortAllUnits'>Calculate</button>
+      <button @click='reset'>Reset</button>
 
       <div class='sorted-units'>
         <div class="unit-box" 
@@ -74,11 +74,13 @@ export default {
   data() {
     return {
       hpInput: 0,
-      hpMore: false,
+      hit_points: 'more',
       btInput: 0,
-      btMore: false,
+      build_time: 'more',
+
       cstInput: 0,
-      cstMore: false,
+      cost: 'more',
+
       anyCheck: true,
 
       units: [],
@@ -87,23 +89,30 @@ export default {
     }
   },
   methods: {
-    updateButton: function(name){
-      this[name] = !this[name]
+    updateSort: function(name, type, input){
+      this[name] = type
+
+      this.sortedUnits = this.sortedUnits.filter(unit => {
+        if(type === 'more'){
+          return unit[name] > input
+        } else return unit[name] < input
+      })
+
     },
     sortAllUnits: function(){
       this.sortedUnits = this.units.filter((unit, index) => {
         //hp Filter
-        if(this.hpMore === true){
+        if(this.hit_points === 'more'){
           return unit.hit_points > this.hpInput
         } else return unit.hit_points < this.hpInput
       }).filter((unit, index) => {
         //build filter
-        if(this.btMore === true){
+        if(this.build_time === 'more'){
           return unit.build_time > this.btInput
         } else return unit.build_time < this.btInput
       }).filter((unit, index) => {
         //cost filter
-        if(this.cstMore === true){
+        if(this.cost === 'more'){
           
           return unit.cost.Gold > this.cstInput
         } else if(this.cstMore === false){
@@ -144,9 +153,14 @@ export default {
 
     getUnits: function(){
       axios.get('http://localhost:3001/api/getUnits').then(response => {
-        this.units = response.data.units
+        let sorted = response.data.units.sort((a, b) => a.cost.Gold)
+        this.units = sorted
+        this.sortedUnits = sorted
       }).catch(err => console.log(err, 'broke'))
     },
+    reset: function(){
+      this.sortedUnits = this.units
+    }
 
   },
   mounted() {
@@ -158,7 +172,10 @@ export default {
 <style>
 
   .filter-inputs {
-    display: flex
+    display: flex;
+    justify-content: space-around;
+
+    width: 100%
   }
 
   .sorted-units {
