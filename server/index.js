@@ -13,11 +13,14 @@ app.use(json())
 app.use(cors())
 
 app.get('/api/getUnits', (req, res) => {
+    console.log('launched')
     if(units[0]){
+        console.log('got old stuff')
         res.status(200).send(units)
     } else  
         axios.get('https://age-of-empires-2-api.herokuapp.com//api/v1/units')
         .then(response => {
+            console.log('got new stuff')
             units = response.data
             return res.status(200).send(response.data)
         }).catch(err => console.log(err))

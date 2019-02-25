@@ -24,7 +24,7 @@
 
         <div class='sorted-units'>
           <div class="unit-box" 
-                v-for="(unit, index) in sortedUnits" 
+                v-for="(unit, index) in finalSorts" 
                 :key="index"
                 >
             <h3 class='unit-name'>{{unit.name}}</h3>
@@ -126,17 +126,17 @@ export default {
 
     },
     sortAllUnits: function(){
-      this.sortedUnits = this.units.filter((unit, index) => {
+      this.sortedUnits = this.units.filter((unit) => {
         //hp Filter
         if(this.hit_points === 'more'){
           return unit.hit_points > this.hpInput
         } else return unit.hit_points < this.hpInput
-      }).filter((unit, index) => {
+      }).filter((unit) => {
         //build filter
         if(this.build_time === 'more'){
           return unit.build_time > this.btInput
         } else return unit.build_time < this.btInput
-      }).filter((unit, index) => {
+      }).filter((unit) => {
         //cost filter
         if(this.cost === 'more'){
           
@@ -169,9 +169,9 @@ export default {
         this.bestUnits = finalFive
         // this.bestUnits = filteredUnits
       }
-      else {
+      // else {
 
-      }
+      // }
     },
     updateCheck: function() {
       this.anyCheck = !this.anyCheck
@@ -179,12 +179,12 @@ export default {
 
     getUnits: function(){
       axios.get('http://localhost:3001/api/getUnits').then(response => {
-        let sorted = response.data.units.sort((a, b) => a.cost.Gold).filter(unit => {
+        let sorted = response.data.units.sort((a, b) => a.cost.Gold - b.cost.Gold).filter(unit => {
           if(unit.build_time){
             return true
           }
         })
-        
+
         this.units = sorted
         this.sortedUnits = sorted
       }).catch(err => console.log(err, 'broke'))
@@ -197,36 +197,81 @@ export default {
 
   computed: {
     finalSorts: function() {
-      return this.units.sort((a, b) => a.cost.Gold - b.cost.Gold)
-        .filter((unit, index) => {
-        //hp Filter
-        if(this.hit_points === 'more'){
-          return unit.hit_points > this.hpInput
-        } else return unit.hit_points < this.hpInput
-      }).filter((unit, index) => {
-        //build filter
-        if(this.build_time === 'more'){
-          return unit.build_time > this.btInput
-        } else return unit.build_time < this.btInput
-      })
-      .filter((unit, index) => {
-        //gold filter
-        if(this.cost === 'more'){
-          if(unit.cost.Gold){
-            return unit.cost.Gold > this.goldInput
-          } else return false
-        } else {
-          if(!unit.cost.Gold){
-              return true
-          }
-          return unit.cost.Gold < this.goldInput
-        }
-    })
+        return this.units
+          .filter((unit) => {
+            //hp Filter
+            if(this.hit_points === 'more'){
+              return unit.hit_points > this.hpInput
+            } else return unit.hit_points < this.hpInput
+          }).filter((unit) => {
+            //build filter
+            if(this.build_time === 'more'){
+              return unit.build_time > this.btInput
+            } else return unit.build_time < this.btInput
+          }).filter((unit) => {
+              //gold filter
+              if(this.goldInput > 0){
+                if(this.cost === 'more'){
+                  if(unit.cost.Gold){
+                    return unit.cost.Gold > this.goldInput
+                  } else return false
+                } else {
+                  if(!unit.cost.Gold){
+                      return true
+                  }
+                  return unit.cost.Gold < this.goldInput
+                }
+              } else return true
+            }).filter((unit) => {
+              //wood filter
+              if(this.woodInput > 0){
+                if(this.cost === 'more'){
+                  if(unit.cost.Wood){
+                    return unit.cost.Wood > this.woodInput
+                  } else return false
+                } else {
+                  if(!unit.cost.Wood){
+                      return true
+                  }
+                  return unit.cost.Wood < this.woodInput
+                }
+              } else return true
+            }).filter((unit) => {
+              //food filter
+              if(this.foodInput > 0){
+                if(this.cost === 'more'){
+                  if(unit.cost.Food){
+                    return unit.cost.Food > this.foodInput
+                  } else return false
+                } else {
+                  if(!unit.cost.Food){
+                      return true
+                  }
+                  return unit.cost.Food < this.foodInput
+                }
+              } else return true
+            }).filter((unit) => {
+              if(this.stoneInput > 0) {
+                if(this.cost === 'more'){
+                  if(unit.cost.Stone){
+                    return unit.cost.Stone > this.stoneInput
+                  } else return false
+                } else {
+                  if(!unit.cost.Stone){
+                      return true
+                  }
+                  return unit.cost.Stone < this.stoneInput
+                }
+              } else return true
+            })
+          
+      } 
   },
+
   mounted() {
     this.getUnits()
   }
-  }
+  
 }
 </script>
 
