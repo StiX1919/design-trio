@@ -34,6 +34,7 @@
             <h5 v-if='unit.cost.Wood'>Wood: {{unit.cost.Wood}}</h5>
             <h5 v-if='unit.cost.Food'>Food: {{unit.cost.Food}}</h5>
             <h5 v-if='unit.cost.Stone'>Stone: {{unit.cost.Stone}}</h5>
+            <h5>Built in {{unit.created_in.split('/').pop()}}</h5>
           </div>
         </div>
         <div>
@@ -49,7 +50,7 @@
 
         <div class='sorted-units'>
           <div class="unit-box" 
-                v-for="(unit, index) in bestUnits" 
+                v-for="(unit, index) in bestFive" 
                 :key="index"
                 >
             <h3 class='unit-name'>{{unit.name}}</h3>
@@ -59,6 +60,7 @@
             <h5 v-if='unit.cost.Wood'>Wood: {{unit.cost.Wood}}</h5>
             <h5 v-if='unit.cost.Food'>Food: {{unit.cost.Food}}</h5>
             <h5 v-if='unit.cost.Stone'>Stone: {{unit.cost.Stone}}</h5>
+            <h5>Built in {{unit.created_in.split('/').pop()}}</h5>
           </div>
         </div>
 
@@ -125,54 +127,7 @@ export default {
       })
 
     },
-    sortAllUnits: function(){
-      this.sortedUnits = this.units.filter((unit) => {
-        //hp Filter
-        if(this.hit_points === 'more'){
-          return unit.hit_points > this.hpInput
-        } else return unit.hit_points < this.hpInput
-      }).filter((unit) => {
-        //build filter
-        if(this.build_time === 'more'){
-          return unit.build_time > this.btInput
-        } else return unit.build_time < this.btInput
-      }).filter((unit) => {
-        //cost filter
-        if(this.cost === 'more'){
-          
-          return unit.cost.Gold > this.cstInput
-        } else if(this.cstMore === false){
-          if(unit.cost.Gold === undefined){
-              return true
-          }
-          return unit.cost.Gold < this.cstInput
-        }
-      }).sort((a, b) => a.cost.Gold - b.cost.Gold)
-      this.bestFive()
-      console.log(this.sortedUnits)
-    },
-    bestFive: function(){
-      let finalFive = []
-      if(this.anyCheck === false){
-
-        let filteredUnits = this.sortedUnits
-          .sort((a, b) => a.build_time - b.build_time)
-          .filter((unit, index, arr) => {
-            return unit.build_time === arr[0].build_time
-          })
-          .sort((a, b) => b.hit_points - a.hit_points)
-
-        for(let i = 0; i < 5; i++){
-          finalFive.push(filteredUnits[0])
-        }
-        console.log(filteredUnits) 
-        this.bestUnits = finalFive
-        // this.bestUnits = filteredUnits
-      }
-      // else {
-
-      // }
-    },
+    
     updateCheck: function() {
       this.anyCheck = !this.anyCheck
     },
@@ -197,7 +152,7 @@ export default {
 
   computed: {
     finalSorts: function() {
-        return this.units
+        let finalSort = this.units
           .filter((unit) => {
             //hp Filter
             if(this.hit_points === 'more'){
@@ -264,8 +219,30 @@ export default {
                 }
               } else return true
             })
-          
-      } 
+          this.sortedUnits = finalSort
+          return finalSort
+      },
+      bestFive: function() {
+        if(this.anyCheck === false){
+          let finalFive = []
+
+          let filteredUnits = this.sortedUnits
+            .sort((a, b) => a.build_time - b.build_time)
+            .filter((unit, index, arr) => {
+              return unit.build_time === arr[0].build_time
+            })
+            .sort((a, b) => b.hit_points - a.hit_points)
+
+          for(let i = 0; i < 5; i++){
+            finalFive.push(filteredUnits[0])
+          }
+          console.log(filteredUnits) 
+          return finalFive
+          // this.bestUnits = filteredUnits
+        } else {
+
+        }
+      }
   },
 
   mounted() {
